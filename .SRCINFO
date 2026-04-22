@@ -1,0 +1,15 @@
+pkgbase = rsprompt-git
+	pkgdesc = bash prompt generator
+	pkgver = 0.1
+	pkgrel = 0
+	url = https://github.com/fisik-yum/rsprompt
+	arch = x86_64
+	license = GPL
+	makedepends = git
+	depends = cargo
+	provides = rsprompt
+	conflicts = rsprompt
+	source = rsprompt::git+https://github.com/fisik-yum/rsprompt.git
+	sha256sums = SKIP
+
+pkgname = rsprompt-git
