@@ -1,9 +1,9 @@
 use std::process::Command;
 
-use crate::modules::Module;
+use crate::modules;
 
 pub struct Git;
-impl Module for Git {
+impl modules::Module for Git {
     fn fmt(opts: &Option<Vec<String>>) -> String {
         if let Some(o) = opts {
             if o.len() > 0 {

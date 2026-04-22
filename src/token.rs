@@ -29,6 +29,7 @@ pub fn parse(dat: &String) -> String {
     mapped_tokens.join("")
 }
 // TODO: panics
+// TODO: nesting
 fn tokenize(dat: &String) -> Vec<Token> {
     let mut ret: Vec<Token> = vec![];
     let as_chars = dat.chars();

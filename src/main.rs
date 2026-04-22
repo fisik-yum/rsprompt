@@ -3,6 +3,7 @@ mod matcher;
 mod mod_git;
 mod mod_go;
 mod mod_text;
+mod mod_rust;
 mod modules;
 mod token;
 fn main() {

@@ -1,4 +1,4 @@
-use crate::{mod_git, mod_go, mod_text, modules::Module, token};
+use crate::{mod_git, mod_go, mod_text, mod_rust, modules::Module, token};
 pub fn match_token(tok: &token::Token) -> String {
     match tok {
         token::Token::Text(s) => match s.as_str() {
@@ -19,6 +19,7 @@ pub fn match_token(tok: &token::Token) -> String {
             "text" => mod_text::Text::fmt(opts),
             "git" => mod_git::Git::fmt(opts),
             "go" => mod_go::Go::fmt(opts),
+            "rust" => mod_rust::Rust::fmt(opts),
             _ => name.clone(),
         },
     }
