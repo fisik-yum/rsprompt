@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 cargo_metadata = "0.23.1"
 fmt = "0.1.0"
+git2 = "0.21.0"

@@ -1,4 +1,5 @@
-use std::process::Command;
+use std::ffi::os_str;
+use std::{ffi::OsStr, path::Path, process::Command};
 
 use crate::modules;
 
@@ -8,8 +9,7 @@ impl modules::Module for Git {
         if let Some(o) = opts {
             if o.len() > 0 {
                 let fmt_str = o.get(0).unwrap();
-                let b = Git::branch();
-                let c = Git::commit();
+                let (b, c) = Git::stats();
                 if b == "" || c == "" {
                     return "".to_string();
                 }
@@ -24,48 +24,31 @@ impl modules::Module for Git {
 }
 
 impl Git {
-    fn branch() -> String {
-        if let Ok(cmd) = Command::new("git")
-            .arg("rev-parse")
-            .arg("--abbrev-ref")
-            .arg("HEAD")
-            .output()
-        {
-            if cmd.status.code().unwrap_or(-1) != 0 {
-                return "".to_string();
-            } else {
-                let mut val = String::from_utf8(cmd.stdout).unwrap_or("".to_string());
-                val = val
-                    .strip_suffix("\r\n")
-                    .or(val.strip_suffix("\n"))
-                    .unwrap_or("")
-                    .to_string();
-                return val;
+    fn stats() -> (String, String) {
+        let flags = git2::RepositoryOpenFlags::empty();
+        let ceiling_dirs: Vec<String> = vec![]; // no ceiling limits
+        match git2::Repository::open_ext(".", flags, ceiling_dirs) {
+            Ok(repo) => {
+                let head = repo.head().unwrap();
+                let branch: String;
+                if head.is_branch() {
+                    if let Ok(b) = head.shorthand() {
+                        branch = b.to_string();
+                    } else {
+                        branch = "".to_string();
+                    }
+                } else {
+                    branch = "".to_string();
+                }
+                let commit: String;
+                if let Ok(c) = &head.peel_to_commit() {
+                    commit = c.id().to_string()[..7].to_string();
+                } else {
+                    commit = "".to_string();
+                }
+                return (branch, commit.to_string());
             }
-        } else {
-            return "".to_string();
-        }
-    }
-    fn commit() -> String {
-        if let Ok(cmd) = Command::new("git")
-            .arg("rev-parse")
-            .arg("--short")
-            .arg("HEAD")
-            .output()
-        {
-            if cmd.status.code().unwrap_or(-1) != 0 {
-                return "".to_string();
-            } else {
-                let mut val = String::from_utf8(cmd.stdout).unwrap_or("".to_string());
-                val = val
-                    .strip_suffix("\r\n")
-                    .or(val.strip_suffix("\n"))
-                    .unwrap_or("")
-                    .to_string();
-                return val;
-            }
-        } else {
-            return "".to_string();
+            Err(_) => return ("".to_string(), "".to_string()),
         }
     }
 }
