@@ -1,7 +1,7 @@
-use crate::{mod_git, mod_go, mod_text, mod_rust, modules::Module, token};
-pub fn match_token(tok: &token::Token) -> String {
+use crate::{mod_git, mod_go, mod_rust, mod_text, modules::Module, token};
+pub fn match_token<'a>(tok: &'a token::Token) -> String {
     match tok {
-        token::Token::Text(s) => match s.as_str() {
+        token::Token::Text(s) => match *s {
             "user" => "\\u".to_string(),
             "host" => "\\h".to_string(),
             "date" => "\\d".to_string(),
@@ -13,14 +13,14 @@ pub fn match_token(tok: &token::Token) -> String {
             "cwd" => "\\w".to_string(),
             "basenum" => "\\W".to_string(),
             "cmdnum" => "\\#".to_string(),
-            _ => s.clone().to_string(),
+            _ => s.to_string(),
         },
-        token::Token::Module { name, opts } => match name.as_str() {
+        token::Token::Module { name, opts } => match *name {
             "text" => mod_text::Text::fmt(opts),
             "git" => mod_git::Git::fmt(opts),
             "go" => mod_go::Go::fmt(opts),
             "rust" => mod_rust::Rust::fmt(opts),
-            _ => name.clone(),
+            _ => name.to_string(),
         },
     }
 }

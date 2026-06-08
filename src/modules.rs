@@ -1,3 +1,3 @@
 pub trait Module {
-    fn fmt(opts: &Option<Vec<String>>) -> String;
+    fn fmt<'a>(opts: &Option<Vec<&'a str>>) -> String;
 }

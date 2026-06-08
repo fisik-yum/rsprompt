@@ -3,7 +3,7 @@ use git2;
 
 pub struct Git;
 impl modules::Module for Git {
-    fn fmt(opts: &Option<Vec<String>>) -> String {
+    fn fmt<'a>(opts: &Option<Vec<&'a str>>) -> String {
         if let Some(o) = opts {
             if o.len() > 0 {
                 let fmt_str = o.get(0).unwrap();

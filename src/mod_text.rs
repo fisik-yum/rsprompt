@@ -63,7 +63,7 @@ pub enum BgColor {
 
 pub struct Text;
 impl modules::Module for Text {
-    fn fmt(opts: &Option<Vec<String>>) -> String {
+    fn fmt<'a>(opts: &Option<Vec<&'a str>>) -> String {
         if let Some(o) = opts {
             if o.len() < 3 {
                 panic!("!invalid option count")
@@ -80,14 +80,14 @@ impl modules::Module for Text {
 }
 
 impl Text {
-    fn style(fg: &String, bg: &String, cursor: &String) -> String {
+    fn style(fg: &str, bg: &str, cursor: &str) -> String {
         let fg_t = Text::fg(fg) as u8;
         let bg_t = Text::bg(bg) as u8;
         let cursor_t = Text::cursor(cursor) as u8;
         format!("\\[\\e[{};{};{}m\\]", cursor_t, fg_t, bg_t)
     }
-    fn fg(fg: &String) -> FgColor {
-        match fg.as_str() {
+    fn fg(fg: &str) -> FgColor {
+        match fg {
             "black" => FgColor::Black,
             "red" => FgColor::Red,
             "green" => FgColor::Green,
@@ -107,8 +107,8 @@ impl Text {
             _ => FgColor::Default,
         }
     }
-    fn bg(bg: &String) -> BgColor {
-        match bg.as_str() {
+    fn bg(bg: &str) -> BgColor {
+        match bg {
             "black" => BgColor::Black,
             "red" => BgColor::Red,
             "green" => BgColor::Green,
@@ -128,8 +128,8 @@ impl Text {
             _ => BgColor::Default,
         }
     }
-    fn cursor(cursor: &String) -> Format {
-        match cursor.as_str() {
+    fn cursor(cursor: &str) -> Format {
+        match cursor {
             "bold" => Format::Bold,
             "dim" => Format::Dim,
             "underline" => Format::Underlined,

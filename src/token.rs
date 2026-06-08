@@ -2,16 +2,15 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::matcher::match_token;
-pub enum Token {
-    Text(String),
+pub enum Token<'a> {
+    Text(&'a str),
     Module {
-        name: String,
-        opts: Option<Vec<String>>,
+        name: &'a str,
+        opts: Option<Vec<&'a str>>,
     },
 }
 
-impl Display for Token {
-    // add code here
+impl<'a> Display for Token<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Token::Text(s) => write!(f, "Text: {s}"),
@@ -30,51 +29,44 @@ pub fn parse(dat: &String) -> String {
 }
 // TODO: panics
 // TODO: nesting
-fn tokenize(dat: &String) -> Vec<Token> {
-    let mut ret: Vec<Token> = vec![];
-    let as_chars = dat.chars();
+fn tokenize<'a>(dat: &'a str) -> Vec<Token<'a>> {
+    let mut ret: Vec<Token<'a>> = vec![];
 
-    let mut res = String::from("");
     let mut is_open = false;
-    for ch in as_chars {
+    let mut segment_start = 0;
+
+    for (i, ch) in dat.char_indices() {
         if ch == '{' {
-            if is_open {
-                panic!("malformed braces!")
-            }
-            if !res.is_empty() {
-                ret.push(Token::Text(res.clone()));
-                res.clear();
-            }
-            is_open = !is_open;
-        } else if ch == '}' {
             if !is_open {
-                panic!("malformed braces!")
+                if i > segment_start {
+                    ret.push(Token::Text(&dat[segment_start..i]));
+                }
+                is_open = true;
+                segment_start = i + 1;
             }
-            if !res.is_empty() {
-                ret.push(extract_args_module_token(&res));
-                res.clear();
+        } else if ch == '}' {
+            if is_open {
+                is_open = false;
+                ret.push(extract_args_module_token(&dat[segment_start..i]));
+                segment_start = i + 1;
             }
-            is_open = !is_open
-        } else {
-            res.push(ch);
         }
     }
-
     ret
 }
 
-fn extract_args_module_token(s: &String) -> Token {
+fn extract_args_module_token<'a>(s: &'a str) -> Token<'a> {
     if !s.starts_with(":") {
         return Token::Module {
-            name: s.trim().to_string(),
+            name: s.trim(),
             opts: None,
         };
     } else {
         // TODO: fix unwraps
         let (name, args) = s.strip_prefix(":").unwrap().split_once(":").unwrap();
-        let args_vec: Vec<String> = args.split(";").map(|s| s.to_string()).collect();
+        let args_vec: Vec<&'a str> = args.split(";").map(|s| s).collect();
         return Token::Module {
-            name: name.to_string(),
+            name: name,
             opts: Some(args_vec),
         };
     }
