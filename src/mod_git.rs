@@ -32,14 +32,15 @@ impl Git {
         let mut commit: Option<String> = None;
         match git2::Repository::open_ext(".", flags, ceiling_dirs) {
             Ok(repo) => {
-                let head = repo.head().unwrap();
-                if head.is_branch() {
-                    if let Ok(b) = head.shorthand() {
-                        branch = Some(b.to_string());
+                if let Ok(head) = repo.head() {
+                    if head.is_branch() {
+                        if let Ok(b) = head.shorthand() {
+                            branch = Some(b.to_string());
+                        }
                     }
-                }
-                if let Ok(c) = &head.peel_to_commit() {
-                    commit = Some(c.id().to_string()[..7].to_string());
+                    if let Ok(c) = &head.peel_to_commit() {
+                        commit = Some(c.id().to_string()[..7].to_string());
+                    }
                 }
             }
             Err(_) => {}
